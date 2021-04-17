@@ -29,3 +29,27 @@ def search(request):
         return render(request, "encyclopedia/search.html", {
             "entries": [entry for entry in util.list_entries() if title in entry]
         })
+
+class NewEntryForm(forms.Form):
+    title = forms.CharField(label="Entry Title")
+    entry = forms.CharField(label="Entry Text", widget=forms.Textarea)
+
+def create(request):
+    if request.method == "GET":
+        return render(request, "encyclopedia/create.html", {
+            "form": NewEntryForm()
+        })
+    
+    form = NewEntryForm(request.POST)
+    if form.is_valid():
+        title = form.cleaned_data["title"]
+        if util.get_entry(title) is not None:
+            return render(request, "encyclopedia/400.html", status = 400)
+        content = form.cleaned_data["entry"]
+        util.save_entry(title, content)
+        return HttpResponseRedirect(reverse("entry", args=[title]))
+    else:
+        return render(request, "encyclopedia/create.html", {
+            "form": form
+        })
+    
