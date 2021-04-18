@@ -53,3 +53,25 @@ def create(request):
             "form": form
         })
     
+class NewEditForm(forms.Form):
+    entry = forms.CharField(label="Entry Text", widget=forms.Textarea)
+
+def edit(request):
+    title = request.POST['entry']
+    entry = util.get_entry(title)
+    if not entry:
+        return render(request, "encyclopedia/404.html", status = 404)
+    return render(request, "encyclopedia/edit.html", {
+        "title": title,
+        "form": NewEditForm(initial={"entry": entry})
+    })
+
+
+def save(request):
+    form = NewEditForm(request.POST)
+    if form.is_valid():
+        title = request.POST['title']
+        entry = form.cleaned_data["entry"]
+        print(title, entry)
+        util.save_entry(title, entry)
+        return HttpResponseRedirect(reverse("entry", args=[title]))
