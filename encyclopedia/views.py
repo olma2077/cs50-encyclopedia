@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from markdown import markdown
 from django import forms
+from random import randrange
 
 from . import util
 
@@ -75,3 +76,8 @@ def save(request):
         print(title, entry)
         util.save_entry(title, entry)
         return HttpResponseRedirect(reverse("entry", args=[title]))
+
+def random(request):
+    entries = util.list_entries()
+    title = entries[randrange(len(entries))]
+    return HttpResponseRedirect(reverse("entry", args=[title]))
